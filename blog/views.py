@@ -51,7 +51,8 @@ def get_likes_count(post):
 
 
 def index(request):
-    most_popular_posts = Post.objects.popular().prefetch_related('author')
+    most_popular_posts = Post.objects.popular().prefetch_related('author',
+                                                                 'tags')
     most_fresh_posts = most_popular_posts.order_by(
         '-published_at')[:5].fetch_with_comments_count()
     most_popular_posts = most_popular_posts[:5].fetch_with_comments_count()
