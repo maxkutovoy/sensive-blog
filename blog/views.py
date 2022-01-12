@@ -39,12 +39,14 @@ def get_likes_count(post):
 
 def index(request):
     most_popular_posts = Post.objects.popular().prefetch_related(
-        'author').prefetch_related(
-            Prefetch(
-                'tags',
-                Tag.objects.annotate(posts_count=Count('posts')),
-        )
-    )
+        'author').prefetch_posts_count()
+
+        # prefetch_related(
+        #     Prefetch(
+        #         'tags',
+        #         Tag.objects.annotate(posts_count=Count('posts')),
+        #     )
+        # )
     most_fresh_posts = most_popular_posts.order_by(
         '-published_at')[:5].fetch_with_comments_count()
     most_popular_posts = most_popular_posts[:5].fetch_with_comments_count()
@@ -91,12 +93,7 @@ def post_detail(request, slug):
     most_popular_tags = Tag.objects.popular()[:5]
 
     most_popular_posts = Post.objects.popular().prefetch_related(
-        'author').prefetch_related(
-        Prefetch(
-            'tags',
-            Tag.objects.annotate(posts_count=Count('posts')),
-        )
-    )[:5].fetch_with_comments_count()
+        'author').prefetch_posts_count()[:5].fetch_with_comments_count()
 
     context = {
         'post': serialized_post,
@@ -112,20 +109,10 @@ def tag_filter(request, tag_title):
     tag = Tag.objects.get(title=tag_title)
 
     most_popular_posts = Post.objects.popular().prefetch_related(
-        'author').prefetch_related(
-            Prefetch(
-                'tags',
-                Tag.objects.annotate(posts_count=Count('posts')),
-            )
-        )[:5].fetch_with_comments_count()
+        'author').prefetch_posts_count()[:5].fetch_with_comments_count()
 
     related_posts = Post.objects.filter(tags__title=tag_title).prefetch_related(
-        'author').prefetch_related(
-            Prefetch(
-                'tags',
-                Tag.objects.annotate(posts_count=Count('posts')),
-            )
-        )[:20].fetch_with_comments_count()
+        'author').prefetch_posts_count()[:20].fetch_with_comments_count()
 
     most_popular_tags = Tag.objects.popular()[:5]
 
